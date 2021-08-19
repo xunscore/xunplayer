@@ -10,48 +10,8 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>XunScore Player</title>
-    <link type="image/x-icon" href="css/player.ico" rel="icon" />
-    <link type="text/css" href="css/player.css" rel="stylesheet" />
+    <meta http-equiv="refresh" content="0;url=player.html?url=src/ButterfliesLingeringOverFlowers.zip" />
   </head>
-  <body onload="request();">  
-    <div class="interface">
-      <audio id="player"></audio>
-      <button id="play" class="button">
-        <svg viewBox="-10 -8 48 48" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M6 4l20 12-20 12z"></path></svg>
-      </button>
-      <button id="pause" class="button" style="display:none;">
-        <svg viewBox="-10 -8 48 48" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h10v24h-10zM18 4h10v24h-10z"></path></svg>
-      </button>
-      <div class="progress">
-        <div id="seekbar" class="seekbar">
-          <div id="playbar" class="playbar"></div>
-        </div>
-      </div>
-      <span id="currenttime" class="time">00:00</span>
-      <span id="duration" class="time">00:00</span>
-      <button id="zoomout" class="button">
-        <svg viewBox="-10 -8 48 48" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M8 13h16v6h-16z"></path></svg>
-      </button>    
-      <button id="zoomin" class="button">
-        <svg viewBox="-10 -8 48 48" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M8 13h16v6h-16zM13 7h6v18h-6z"></path></svg>
-      </button>
-      <button id="thumbtack" class="button">
-        <svg viewBox="-10 -8 48 48" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M17 0l-3 3 3 3-7 8h-7l5.5 5.5-8.5 11.269v1.231h1.231l11.269-8.5 5.5 5.5v-7l8-7 3 3 3-3-15-15zM14 17l-2-2 7-7 2 2-7 7z"></path></svg>
-      </button>
-      <button id="open" class="button">
-        <svg fill="white" viewBox="-10 -8 48 48" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="M26 30l6-16h-26l-6 16zM4 12l-4 18v-26h9l4 4h13v4z"></path></svg>
-      </button>          
-    </div>
-    <input id="file" type="file" onchange="request(this.files[0]);" style="display:none;" />
-    <div id="scorepanel"></div>
-  </body>
-  <script src="js/jquery.min.js"></script>  
-  <script src="js/jquery.binarytransport.js"></script>
-  <script src="js/zipfile.js"></script>  	
-  <script src="js/player.js"></script>
 </html>
 <!--
 /**
