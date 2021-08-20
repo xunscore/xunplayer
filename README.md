@@ -1,10 +1,10 @@
 # xunplayer
 
 #### Description
-Xunscore Player Html Template
+XunScore Player Html Template
 
 #### Software Architecture
-Use xunscore export zip files, place in the assets folder.
+Use XunScore export zip files, place in the assets folder.
 
 #### Instructions
 
