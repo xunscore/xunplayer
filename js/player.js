@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (C) 2022, by XunScore contributors (xunscore@139.com)
+ * Copyright (C) 2020-2023, by XunScore contributors (xunscore@139.com)
  * Report bugs and download new versions at http://www.xunscore.cn/
  *
  * This library is distributed under the MIT License. See notice at the end
@@ -7,113 +7,109 @@
  */
 var version;
 var stamps;
-$("#player").on({
-  play: function () {
-    $("#play").css("display", "none");
-    $("#pause").css("display", "inline");
-  },
-  pause: function () {
-    $("#play").css("display", "inline");
-    $("#pause").css("display", "none");
-  },
-  ended: function () {
-    $("#play").css("display", "inline");
-    $("#pause").css("display", "none");
-  },
-  canplay: function () { // iOS fail
-    $("#play svg").attr("fill", "white");
-    $("#pause svg").attr("fill", "white");
-    $("#currenttime").css("color", "white");
-    $("#duration").css("color", "white").html(formattime(this.duration));
-    $("#zoomout svg").attr("fill", "white");
-    $("#zoomin svg").attr("fill", "white");
-  },
-  timeupdate: function () {
-    var second = this.currentTime;
-    var low = 0;
-    var high = stamps.length - 1;
-    while (low <= high) {//lower_bound
-      var mid = parseInt((high + low) / 2);
-      if (stamps[mid].second >= second) high = mid - 1;
-      else low = mid + 1;
-    }
-    var cur = high < (stamps.length - 1) ? high : (stamps.length - 1);
-    if (stamps[cur]) {
-      var indicator = $("#" + stamps[cur].slice);
-      indicator.attr("fill", "#007bff").attr("fill-opacity", 0.3);
-      if ($("#thumbtack")[0].scroll) window.scrollTo({ top: $("#" + stamps[cur].slice).offset().top - window.innerHeight * 0.2, behavior: "smooth" }); // Safari fail
-      if ($("#thumbtack")[0].scroll) window.scrollTo({ top: indicator[0].getBoundingClientRect().top + indicator[0].ownerDocument.defaultView.pageYOffset - window.innerHeight * 0.2, behavior: "smooth" });
-    }
-    if (stamps[this.pre] && (this.pre != cur)) $("#" + stamps[this.pre].slice).attr("fill-opacity", 0);
-    this.pre = cur;
-    $("#currenttime").html(formattime(this.currentTime));
-    $("#playbar").css("width", this.currentTime / this.duration * 100 + "%");
+const player = document.getElementById("player");
+const play = document.getElementById("play");
+const pause = document.getElementById("pause");
+const seekbar = document.getElementById("seekbar");
+const playbar = document.getElementById("playbar");
+const currenttime = document.getElementById("currenttime");
+const duration = document.getElementById("duration");
+const zoomout = document.getElementById("zoomout");
+const zoomin = document.getElementById("zoomin");
+const thumbtack = document.getElementById("thumbtack");
+const scorepanel = document.getElementById("scorepanel");
+player.onplay = function () {
+  play.style.display = "none";
+  pause.style.display = "inline";
+};
+player.onpause = function () {
+  play.style.display = "inline";
+  pause.style.display = "none";
+};
+player.ontimeupdate = function () {
+  var second = this.currentTime;
+  var low = 0;
+  var high = stamps.length - 1;
+  while (low <= high) {//lower_bound
+    var mid = parseInt((high + low) / 2);
+    if (stamps[mid].second >= second) high = mid - 1;
+    else low = mid + 1;
   }
-});
-$("#play").click(function () {
-  if ($("#play svg").attr("fill") != "white") return;
+  var cur = high < (stamps.length - 1) ? high : (stamps.length - 1);
+  if (stamps[cur]) {
+    var indicator = document.getElementById(stamps[cur].slice);
+    indicator.setAttribute("fill", "#007bff");
+    indicator.setAttribute("fill-opacity", 0.3);
+    if (thumbtack.scroll) window.scrollTo({ top: indicator.getBoundingClientRect().top + indicator.ownerDocument.defaultView.pageYOffset - window.innerHeight * 0.2, behavior: "smooth" });
+  }
+  if (stamps[this.pre] && (this.pre != cur)) document.getElementById(stamps[this.pre].slice).setAttribute("fill-opacity", 0);
+  this.pre = cur;
+  currenttime.innerHTML = formattime(this.currentTime);
+  playbar.style.width = this.currentTime / this.duration * 100 + "%";
+};
+play.onclick = function () {
+  if (isNaN(player.duration)) return;
   player.play();
-});
-$("#pause").click(function () {
-  if ($("#play svg").attr("fill") != "white") return;
+};
+pause.onclick = function () {
+  if (isNaN(player.duration)) return;
   player.pause();
-});
-$("#seekbar").click(function (event) {
-  if ($("#play svg").attr("fill") != "white") return;
-  player.currentTime = player.duration * event.offsetX / $("#seekbar").width();
-});
-$("#zoomout").on({
-  click: function () {
-    if (this.zoom == null) {
-      var width = parseInt($("#scorepanel>svg").attr("width")) - 1;
-      $("#scorepanel>svg").attr("width", width + "%");
-    }
-  },
-  mousedown: function () {
-    this.zoom = setInterval(function () {
-      var width = parseInt($("#scorepanel>svg").attr("width")) - 1;
-      $("#scorepanel>svg").attr("width", width + "%");
-    }, 100);
-  },
-  mouseup: function () {
-    clearInterval(this.zoom);
-    this.zoom = null;
+};
+seekbar.onclick = function (event) {
+  if (isNaN(player.duration)) return;
+  player.currentTime = player.duration * event.offsetX / seekbar.offsetWidth;
+}
+zoomout.onclick = function () {
+  if (this.zoom == null) {
+    var width = parseInt(scorepanel.querySelector("svg").getAttribute("width")) - 1;
+    scorepanel.querySelectorAll("svg").forEach(function (svg) {
+      svg.setAttribute("width", width + "%");
+    });
   }
-});
-$("#zoomin").on({
-  click: function () {
-    if (this.zoom == null) {
-      var width = parseInt($("#scorepanel>svg").attr("width")) + 1;
-      $("#scorepanel>svg").attr("width", width + "%");
-    }
-  },
-  mousedown: function () {
-    this.zoom = setInterval(function () {
-      var width = parseInt($("#scorepanel>svg").attr("width")) + 1;
-      $("#scorepanel>svg").attr("width", width + "%");
-    }, 100);
-  },
-  mouseup: function () {
-    clearInterval(this.zoom);
-    this.zoom = null;
+}
+zoomout.onmousedown = function () {
+  this.zoom = setInterval(function () {
+    var width = parseInt(scorepanel.querySelector("svg").getAttribute("width")) - 1;
+    scorepanel.querySelectorAll("svg").forEach(function (svg) {
+      svg.setAttribute("width", width + "%");
+    });
+  }, 100);
+}
+zoomout.onmouseup = function () {
+  clearInterval(this.zoom);
+  this.zoom = null;
+}
+zoomin.onclick = function () {
+  if (this.zoom == null) {
+    var width = parseInt(scorepanel.querySelector("svg").getAttribute("width")) + 1;
+    scorepanel.querySelectorAll("svg").forEach(function (svg) {
+      svg.setAttribute("width", width + "%");
+    });
   }
-});
-$("#thumbtack").on({
-  click: function () {
-    this.scroll = this.scroll ? false : true;
-    $("#thumbtack svg").attr("fill", this.scroll ? "black" : "white");
-  }
-});
-$("#open").on({
-  click: function () {
-    $("#file").click();
-  }
-});
-
+}
+zoomin.onmousedown = function () {
+  this.zoom = setInterval(function () {
+    var width = parseInt(scorepanel.querySelector("svg").getAttribute("width")) + 1;
+    scorepanel.querySelectorAll("svg").forEach(function (svg) {
+      svg.setAttribute("width", width + "%");
+    });
+  }, 100);
+}
+zoomin.onmouseup = function () {
+  clearInterval(this.zoom);
+  this.zoom = null;
+}
+thumbtack.onclick = function () {
+  this.scroll = this.scroll ? false : true;
+  this.scroll ? thumbtack.firstElementChild.removeAttribute("fill") : thumbtack.firstElementChild.setAttribute("fill", "white");
+}
+document.getElementById("open").onclick = function () {
+  document.getElementById("file").click();
+};
 function formattime(value) {
   var m = parseInt(value / 60);
   var s = parseInt(value - m * 60);
-  return (m < 10 ? "0" + m.toString() : m.toString()) + ":" + (s < 10 ? "0" + s.toString() : s.toString());
+  return m.toString().padStart(2, "0") + ":" + s.toString().padStart(2, "0");
 }
 function fromCharCode(data) {
   var res = "";
@@ -126,27 +122,44 @@ function fromCharCode(data) {
 function uzip(result) {
   var zip = new ZipFile(result);
   var data = zip.read("json");
-  if (!data) { $("#scorepanel").get(0).innerHTML += "<H1 style='color:white'>410</H1>"; return; }
+  if (!data) { scorepanel.innerHTML += "<H1 style='color:white'>410</H1>"; return; }
   var json = JSON.parse(String.fromCharCode.apply(null, data));
   version = json.version ? parseInt(json.version.split(".").join("")) : 100;
   stamps = json.stamps;
-  $("#scorepanel").get(0).innerHTML = "";
+  scorepanel.innerHTML = "";
   var pnb = 1;
-  while (data = zip.read((pnb++) + ".svg")) $("#scorepanel").get(0).innerHTML += fromCharCode(data);
-  $("#scorepanel>svg").attr("width", "95%").css("background-color", "white").css("box-shadow", "0px 0px 10px rgba(0, 0, 0, 1)").before($("<div style='height: 30px;'/>"));
-  $("#scorepanel>svg:last").attr("width", "95%").css("box-shadow", "0px 0px 10px rgba(0, 0, 0, 1)").after($("<div style='height: 10px;'/>"));
-  if (data = zip.read("mp3")) $("<source/>").attr("src", URL.createObjectURL(new Blob([data], { type: "audio/mpeg" }))).attr("type", "audio/mpeg").prependTo($("#player"));
-  else if (data = zip.read("oga")) $("<source/>").attr("src", URL.createObjectURL(new Blob([data], { type: "audio/ogg" }))).attr("type", "audio/ogg").prependTo($("#player"));
-  var ios = setInterval(function () { // for iOS
+  while (data = zip.read((pnb++) + ".svg")) scorepanel.innerHTML += fromCharCode(data);
+  var lastsvg;
+  scorepanel.querySelectorAll("svg").forEach(function (svg) {
+    svg.setAttribute("width", "95%");
+    svg.setAttribute("style", "background-color: white;box-shadow : 0px 0px 10px rgba(0, 0, 0, 1);");
+    svg.insertAdjacentHTML("beforebegin", "<div style='height: 30px;'/>");
+    lastsvg = svg;
+  });
+  lastsvg.insertAdjacentHTML("afterend", "<div style='height: 10px;'/>");
+  if (data = zip.read("mp3")) {
+    const source = document.createElement("source");
+    source.setAttribute("src", URL.createObjectURL(new Blob([data], { type: "audio/mpeg" })));
+    source.setAttribute("type", "audio/mpeg");
+    player.appendChild(source);
+  }
+  else if (data = zip.read("oga")) {
+    const source = document.createElement("source");
+    source.setAttribute("src", URL.createObjectURL(new Blob([data], { type: "audio/ogg" })));
+    source.setAttribute("type", "audio/ogg");
+    player.appendChild(source);
+  }
+  var browser = setInterval(function () { // for all browser
     if (isNaN(player.duration)) return;
-    $("#play svg").attr("fill", "white");
-    $("#pause svg").attr("fill", "white");
-    $("#currenttime").css("color", "white");
-    $("#duration").css("color", "white").html(formattime(player.duration));
-    $("#zoomout svg").attr("fill", "white");
-    $("#zoomin svg").attr("fill", "white");
-    clearInterval(ios);
-  }, 100);
+    play.firstElementChild.setAttribute("fill", "white");
+    pause.firstElementChild.setAttribute("fill", "white");
+    currenttime.style.color = "white";
+    duration.style.color = "white";
+    duration.innerHTML = formattime(player.duration);
+    zoomout.firstElementChild.setAttribute("fill", "white");
+    zoomin.firstElementChild.setAttribute("fill", "white");
+    clearInterval(browser);
+  }, 200);
 }
 function request(file) {
   if (arguments.length) {
@@ -156,26 +169,23 @@ function request(file) {
   } else {
     var avg = function (key) {
       var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i");
-      var r = window.location.search.substr(1).match(reg);
+      var r = window.location.search.substring(1).match(reg);
       if (r != null) return (r[2]); return null;
     }
     if (avg("url") == null) return;
-    $.ajax({
-      url: decodeURIComponent(avg("url")),
-      type: "GET",
-      dataType: 'binary',
-      responseType: 'arraybuffer',
-      processData: false,
-      success: function (result) { uzip(result); },
-      error: function (xhr, ajaxOptions, thrownError) {
-        $("#scorepanel").get(0).innerHTML += "<H1 style='color:white'>404</H1>";
-      }
-    });
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", decodeURIComponent(avg("url")), true);
+    xhr.responseType = "arraybuffer";
+    xhr.onloadend = function () {
+      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) uzip(xhr.response);
+      else scorepanel.innerHTML += "<H1 style='color:white'>" + xhr.status + "</H1>";
+    }
+    xhr.send();
   }
-  $("#open").css("display", "none");
+  document.getElementById("open").style.display = "none";
 }
 /**
- * Copyright (c) 2021 XunScore contributors
+ * Copyright (c) 2020-2023 XunScore contributors
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
